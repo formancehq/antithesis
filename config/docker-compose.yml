@@ -1,0 +1,34 @@
+---
+services:
+  postgres:
+    platform: linux/x86_64
+    image: "postgres:15-alpine"
+    restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ledger" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      POSTGRES_USER: "formance"
+      POSTGRES_PASSWORD: "formance"
+      POSTGRES_DB: "ledger"
+      PGDATA: "/data/postgres"
+    volumes:
+      - ./volumes/database:/data/postgres
+
+  ledger:
+    image: "ghcr.io/formancehq/ledger:v2.0.0-rc.19"
+    healthcheck:
+      test: [ "CMD", "wget", "http://127.0.0.1:8080/_info", "-O", "-", "-q" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - 8080:8080
+    environment:
+      POSTGRES_URI: "postgresql://formance:formance@postgres:5432/ledger?sslmode=disable"
+      BIND: ":8080"
