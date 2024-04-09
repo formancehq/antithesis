@@ -18,7 +18,7 @@ services:
       - ./volumes/database:/data/postgres
 
   ledger:
-    image: "ghcr.io/formancehq/ledger:v2.0.0-rc.19"
+    image: "ghcr.io/formancehq/ledger:v2.0.0-rc.20"
     healthcheck:
       test: [ "CMD", "wget", "http://127.0.0.1:8080/_info", "-O", "-", "-q" ]
       interval: 10s
