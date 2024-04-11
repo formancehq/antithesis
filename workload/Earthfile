@@ -3,7 +3,7 @@ VERSION 0.8
 compile:
     FROM golang:1.22.2-alpine3.19
     WORKDIR /src
-    COPY * .
+    COPY go.* *.go .
     RUN go build -o main
     SAVE ARTIFACT /src/main
 
@@ -12,4 +12,4 @@ build:
     COPY (+compile/main) /bin/workload
     ENTRYPOINT ["/bin/workload"]
 
-    SAVE IMAGE us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/workload
+    SAVE IMAGE --push us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/workload
