@@ -1,34 +1,49 @@
 ---
+version: '3.8'
+
+networks:
+  formance:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.0.0/24
+
 services:
   postgres:
-    platform: linux/x86_64
     image: "postgres:15-alpine"
-    restart: always
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ledger" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    hostname: postgres
+    container_name: postgres
+    command:
+      - -c
+      - max_connections=200
     environment:
-      POSTGRES_USER: "formance"
-      POSTGRES_PASSWORD: "formance"
+      POSTGRES_USER: "ledger"
+      POSTGRES_PASSWORD: "ledger"
       POSTGRES_DB: "ledger"
-      PGDATA: "/data/postgres"
+      PGDATA: /data/postgres
     volumes:
-      - ./volumes/database:/data/postgres
+      - postgres:/data/postgres
+    networks:
+      formance:
+        ipv4_address: 10.0.0.16
 
   ledger:
     image: "ghcr.io/formancehq/ledger:v2.0.0-rc.20"
-    healthcheck:
-      test: [ "CMD", "wget", "http://127.0.0.1:8080/_info", "-O", "-", "-q" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    depends_on:
-      postgres:
-        condition: service_healthy
-    ports:
-      - 8080:8080
+    hostname: ledger
+    container_name: ledger
     environment:
-      POSTGRES_URI: "postgresql://formance:formance@postgres:5432/ledger?sslmode=disable"
+      STORAGE_DRIVER: "postgres"
+      POSTGRES_URI: "postgresql://ledger:ledger@10.0.0.16:5432/ledger?sslmode=disable"
+      DEBUG: "true"
       BIND: ":8080"
+    networks:
+      formance:
+        ipv4_address: 10.0.0.17
+
+  workload:
+    image: "us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/workload"
+    hostname: workload
+    container_name: workload
+    networks:
+      formance:
+        ipv4_address: 10.0.0.18
