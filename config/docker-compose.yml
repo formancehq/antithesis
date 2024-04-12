@@ -4,6 +4,7 @@ version: '3.8'
 networks:
   formance:
     driver: bridge
+    internal: true
     ipam:
       config:
         - subnet: 10.0.0.0/24
@@ -39,6 +40,22 @@ services:
     networks:
       formance:
         ipv4_address: 10.0.0.17
+    depends_on:
+      - postgres
+
+  gateway:
+    image: "ghcr.io/formancehq/gateway:v2.0.0-rc.20"
+    hostname: gateway
+    container_name: gateway
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+    ports:
+      - "8080:8080"
+    networks:
+      formance:
+        ipv4_address: 10.0.0.18
+    depends_on:
+      - ledger
 
   workload:
     image: "us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/workload"
@@ -46,4 +63,6 @@ services:
     container_name: workload
     networks:
       formance:
-        ipv4_address: 10.0.0.18
+        ipv4_address: 10.0.0.19
+    depends_on:
+      - gateway

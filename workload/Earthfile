@@ -3,10 +3,10 @@ VERSION 0.8
 compile:
     FROM golang:1.22.2
     WORKDIR /src
+    RUN go install github.com/antithesishq/antithesis-sdk-go/tools/antithesis-go-instrumentor@latest
     COPY go.* *.go .
     RUN go mod download
     RUN go get github.com/formancehq/antithesis-poc
-    RUN go install github.com/antithesishq/antithesis-sdk-go/tools/antithesis-go-instrumentor@latest
     RUN mkdir -p /workload_instrumented
     RUN /go/bin/antithesis-go-instrumentor . /workload_instrumented
     WORKDIR /workload_instrumented/customer
