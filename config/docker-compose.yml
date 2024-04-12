@@ -22,7 +22,7 @@ services:
       POSTGRES_DB: "ledger"
       PGDATA: /data/postgres
     volumes:
-      - postgres:/data/postgres
+      - ./volumes/database:/data/postgres
     networks:
       formance:
         ipv4_address: 10.0.0.16

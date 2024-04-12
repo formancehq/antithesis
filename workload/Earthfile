@@ -1,15 +1,25 @@
 VERSION 0.8
 
 compile:
-    FROM golang:1.22.2-alpine3.19
+    FROM golang:1.22.2
     WORKDIR /src
     COPY go.* *.go .
+    RUN go mod download
+    RUN go get github.com/formancehq/antithesis-poc
+    RUN go install github.com/antithesishq/antithesis-sdk-go/tools/antithesis-go-instrumentor@latest
+    RUN mkdir -p /workload_instrumented
+    RUN /go/bin/antithesis-go-instrumentor . /workload_instrumented
+    WORKDIR /workload_instrumented/customer
+    RUN go mod download
     RUN go build -o main
-    SAVE ARTIFACT /src/main
+    SAVE ARTIFACT /workload_instrumented/customer/main
+    SAVE ARTIFACT /workload_instrumented/symbols
 
 build:
-    FROM scratch
+    FROM ubuntu:latest
     COPY (+compile/main) /bin/workload
+    COPY (+compile/symbols) /symbols
+    RUN chmod 777 /bin/workload
     ENTRYPOINT ["/bin/workload"]
 
     SAVE IMAGE --push us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/workload
