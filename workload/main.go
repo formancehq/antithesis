@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/antithesishq/antithesis-sdk-go/assert"
 	"github.com/antithesishq/antithesis-sdk-go/lifecycle"
@@ -11,6 +10,7 @@ import (
 	"github.com/formancehq/formance-sdk-go/v2/pkg/models/operations"
 	"github.com/formancehq/formance-sdk-go/v2/pkg/models/shared"
 	"github.com/formancehq/stack/libs/go-libs/httpclient"
+	"github.com/formancehq/stack/libs/go-libs/pointer"
 	"golang.org/x/sync/errgroup"
 	"math"
 	"math/big"
@@ -72,10 +72,14 @@ func runWorkload(ctx context.Context, client *sdk.Formance) {
 		"error": err,
 	})
 
+	totalAmount := big.NewInt(0)
+
 	fmt.Printf("Insert %d transactions...\r\n", count)
 	grp, _ := errgroup.WithContext(ctx)
 	for i := 0; i < count; i++ {
-		grp.Go(runTrade(ctx, client))
+		amount := big.NewInt(int64(math.Abs(float64(random.GetRandom()))))
+		totalAmount = totalAmount.Add(totalAmount, amount)
+		grp.Go(runTrade(ctx, client, amount))
 	}
 
 	err = grp.Wait()
@@ -83,25 +87,29 @@ func runWorkload(ctx context.Context, client *sdk.Formance) {
 		"error": err,
 	})
 
-	fmt.Println("Checking balances...")
-	balances, err := client.Ledger.GetBalances(ctx, operations.GetBalancesRequest{
-		Ledger: "default",
+	fmt.Println("Checking balance of 'world'...")
+	account, err := client.Ledger.V2GetAccount(ctx, operations.V2GetAccountRequest{
+		Address: "world",
+		Expand:  pointer.For("volumes"),
+		Ledger:  "default",
 	})
-	assert.Always(err == nil, "reading balances should be ok", Details{
+	assert.Always(err == nil, "we should be able to query account 'world'", Details{
 		"error": err,
 	})
 	if err == nil {
-		data, err := json.MarshalIndent(balances.BalancesCursorResponse, "", "  ")
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println(string(data))
+		output := account.V2AccountResponse.Data.Volumes["USD/2"].Output
+		assert.Always(
+			output.Cmp(totalAmount) == 0,
+			fmt.Sprintf("output of 'world' should be %s", totalAmount),
+			Details{
+				"output": output,
+			},
+		)
 	}
 }
 
-func runTrade(ctx context.Context, client *sdk.Formance) func() error {
+func runTrade(ctx context.Context, client *sdk.Formance, amount *big.Int) func() error {
 	return func() error {
-		amount := big.NewInt(int64(math.Abs(float64(random.GetRandom()))))
 		orderID := fmt.Sprint(int64(math.Abs(float64(random.GetRandom()))))
 
 		_, err := client.Ledger.V2CreateTransaction(ctx, operations.V2CreateTransactionRequest{
