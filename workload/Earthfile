@@ -11,7 +11,7 @@ compile:
     RUN /go/bin/antithesis-go-instrumentor . /workload_instrumented
     WORKDIR /workload_instrumented/customer
     RUN go mod download
-    RUN go build -race -o main
+    RUN go build -o main
     SAVE ARTIFACT /workload_instrumented/customer/main
     SAVE ARTIFACT /workload_instrumented/symbols
 

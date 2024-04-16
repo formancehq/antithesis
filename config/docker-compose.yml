@@ -4,7 +4,6 @@ version: '3.8'
 networks:
   formance:
     driver: bridge
-    internal: true
     ipam:
       config:
         - subnet: 10.0.0.0/24
@@ -21,6 +20,7 @@ services:
       POSTGRES_USER: "ledger"
       POSTGRES_PASSWORD: "ledger"
       POSTGRES_DB: "ledger"
+      PGDATA: /data/postgres
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ledger" ]
       interval: 10s
@@ -38,7 +38,7 @@ services:
       STORAGE_DRIVER: "postgres"
       POSTGRES_URI: "postgresql://ledger:ledger@10.0.0.16:5432/ledger?sslmode=disable"
       DEBUG: "true"
-      BIND: "8080"
+      BIND: ":8080"
     networks:
       formance:
         ipv4_address: 10.0.0.17

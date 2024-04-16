@@ -10,7 +10,6 @@ compile:
     RUN go get github.com/antithesishq/antithesis-sdk-go
     RUN go get github.com/formancehq/antithesis-poc
     RUN mkdir -p /workload_instrumented
-    RUN cat go.sum | grep antithesis
     RUN /go/bin/antithesis-go-instrumentor . /workload_instrumented
     WORKDIR /workload_instrumented/customer
     RUN go mod download
