@@ -1,0 +1,30 @@
+VERSION 0.8
+
+compile:
+    FROM --platform=linux/amd64 golang:1.22.2
+    # TODO: can also build straight from application code
+    RUN git clone --depth=1 https://github.com/formancehq/stack.git
+    RUN go install github.com/antithesishq/antithesis-sdk-go/tools/antithesis-go-instrumentor@latest
+    WORKDIR /go/stack/components/ledger
+    RUN go mod download
+    RUN go get github.com/antithesishq/antithesis-sdk-go
+    RUN go get github.com/formancehq/antithesis-poc
+    RUN mkdir -p /workload_instrumented
+    RUN cat go.sum | grep antithesis
+    RUN /go/bin/antithesis-go-instrumentor . /workload_instrumented
+    WORKDIR /workload_instrumented/customer
+    RUN go mod download
+    RUN go build -race -o ledger
+    SAVE ARTIFACT /workload_instrumented/customer/ledger
+    SAVE ARTIFACT /workload_instrumented/symbols
+
+build:
+    FROM ubuntu:latest
+    COPY (+compile/ledger) /bin/ledger
+    COPY (+compile/symbols) /symbols
+    RUN chmod 777 /bin/ledger
+    EXPOSE 8080
+    ENTRYPOINT ["ledger"]
+    CMD ["serve"]
+
+    SAVE IMAGE --push us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/ledger

@@ -21,9 +21,6 @@ services:
       POSTGRES_USER: "ledger"
       POSTGRES_PASSWORD: "ledger"
       POSTGRES_DB: "ledger"
-      PGDATA: /data/postgres
-    volumes:
-      - ./volumes/database:/data/postgres
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ledger" ]
       interval: 10s
@@ -34,14 +31,14 @@ services:
         ipv4_address: 10.0.0.16
 
   ledger:
-    image: "ghcr.io/formancehq/ledger:v2.0.0-rc.20"
+    image: "ledger:latest"
     hostname: ledger
     container_name: ledger
     environment:
       STORAGE_DRIVER: "postgres"
       POSTGRES_URI: "postgresql://ledger:ledger@10.0.0.16:5432/ledger?sslmode=disable"
       DEBUG: "true"
-      BIND: ":8080"
+      BIND: "8080"
     networks:
       formance:
         ipv4_address: 10.0.0.17
@@ -54,7 +51,7 @@ services:
     hostname: gateway
     container_name: gateway
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./gateway/Caddyfile:/etc/caddy/Caddyfile
     ports:
       - "8080:8080"
     networks:

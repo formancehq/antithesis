@@ -1,7 +1,7 @@
 VERSION 0.8
 
 compile:
-    FROM golang:1.22.2
+    FROM --platform=linux/amd64 golang:1.22.2
     WORKDIR /src
     RUN go install github.com/antithesishq/antithesis-sdk-go/tools/antithesis-go-instrumentor@latest
     COPY go.* *.go .
@@ -11,7 +11,7 @@ compile:
     RUN /go/bin/antithesis-go-instrumentor . /workload_instrumented
     WORKDIR /workload_instrumented/customer
     RUN go mod download
-    RUN go build -o main
+    RUN go build -race -o main
     SAVE ARTIFACT /workload_instrumented/customer/main
     SAVE ARTIFACT /workload_instrumented/symbols
 

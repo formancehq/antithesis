@@ -1,15 +1,16 @@
 VERSION 0.8
 
 build-configuration-image:
-    FROM scratch
+    FROM --platform=linux/amd64 scratch
     COPY config/docker-compose.yml /docker-compose.yml
-    RUN mkdir /volumes/database
+    COPY config/Caddyfile /gateway/Caddyfile
 
     SAVE IMAGE --push us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/antithesis-config:latest
 
 build-all:
     BUILD +build-configuration-image
     BUILD ./workload+build
+    BUILD ./ledger+build
 
 run:
     LOCALLY
