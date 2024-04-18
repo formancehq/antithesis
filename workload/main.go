@@ -69,7 +69,7 @@ func runWorkload(ctx context.Context, client *sdk.Formance) {
 		Ledger: "default",
 	})
 	assert.Always(err == nil, "ledger should have been created", Details{
-		"error": err,
+		"error": fmt.Sprintf("%+v\n", err),
 	})
 
 	totalAmount := big.NewInt(0)
@@ -84,7 +84,7 @@ func runWorkload(ctx context.Context, client *sdk.Formance) {
 
 	err = grp.Wait()
 	assert.Always(err == nil, "all transactions should have been written", Details{
-		"error": err,
+		"error": fmt.Sprintf("%+v\n", err),
 	})
 
 	fmt.Println("Checking balance of 'world'...")
@@ -94,13 +94,14 @@ func runWorkload(ctx context.Context, client *sdk.Formance) {
 		Ledger:  "default",
 	})
 	assert.Always(err == nil, "we should be able to query account 'world'", Details{
-		"error": err,
+		"error": fmt.Sprintf("%+v\n", err),
 	})
 	if err == nil {
 		output := account.V2AccountResponse.Data.Volumes["USD/2"].Output
 		assert.Always(
 			output.Cmp(totalAmount) == 0,
-			fmt.Sprintf("output of 'world' should be %s", totalAmount),
+			// TODO: confirm this logic is correct
+			"output of 'world' should be 0",
 			Details{
 				"output": output,
 			},
