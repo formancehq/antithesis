@@ -97,10 +97,9 @@ func runWorkload(ctx context.Context, client *sdk.Formance) {
 	}
 
 	err = grp.Wait()
-	assert.Always(err == nil, "all transactions should have been written", Details{
+	if assertAlways(err == nil, "all transactions should have been written", Details{
 		"error": fmt.Sprintf("%+v\n", err),
-	})
-	if err != nil {
+	}) {
 		return
 	}
 
