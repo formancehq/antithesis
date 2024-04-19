@@ -61,6 +61,18 @@ func waitServicesReady(ctx context.Context, client *sdk.Formance) {
 	}
 }
 
+func randomBigInt() *big.Int {
+	v := random.GetRandom()
+	ret := big.NewInt(0)
+	ret.SetString(fmt.Sprintf("%d", v), 10)
+	return ret
+}
+
+func assertAlways(v bool, msg string, details Details) bool {
+	assert.Always(v, msg, details)
+	return v
+}
+
 func runWorkload(ctx context.Context, client *sdk.Formance) {
 	const count = 100
 
@@ -68,16 +80,18 @@ func runWorkload(ctx context.Context, client *sdk.Formance) {
 	_, err := client.Ledger.V2CreateLedger(ctx, operations.V2CreateLedgerRequest{
 		Ledger: "default",
 	})
-	assert.Always(err == nil, "ledger should have been created", Details{
+	if !assertAlways(err == nil, "ledger should have been created", Details{
 		"error": fmt.Sprintf("%+v\n", err),
-	})
+	}) {
+		return
+	}
 
 	totalAmount := big.NewInt(0)
 
 	fmt.Printf("Insert %d transactions...\r\n", count)
 	grp, _ := errgroup.WithContext(ctx)
 	for i := 0; i < count; i++ {
-		amount := big.NewInt(int64(math.Abs(float64(random.GetRandom()))))
+		amount := randomBigInt()
 		totalAmount = totalAmount.Add(totalAmount, amount)
 		grp.Go(runTrade(ctx, client, amount))
 	}
@@ -86,6 +100,9 @@ func runWorkload(ctx context.Context, client *sdk.Formance) {
 	assert.Always(err == nil, "all transactions should have been written", Details{
 		"error": fmt.Sprintf("%+v\n", err),
 	})
+	if err != nil {
+		return
+	}
 
 	fmt.Println("Checking balance of 'world'...")
 	account, err := client.Ledger.V2GetAccount(ctx, operations.V2GetAccountRequest{
@@ -93,20 +110,24 @@ func runWorkload(ctx context.Context, client *sdk.Formance) {
 		Expand:  pointer.For("volumes"),
 		Ledger:  "default",
 	})
-	assert.Always(err == nil, "we should be able to query account 'world'", Details{
+	if !assertAlways(err == nil, "we should be able to query account 'world'", Details{
 		"error": fmt.Sprintf("%+v\n", err),
-	})
-	if err == nil {
-		output := account.V2AccountResponse.Data.Volumes["USD/2"].Output
-		assert.Always(
-			output.Cmp(totalAmount) == 0,
-			// TODO: confirm this logic is correct
-			"output of 'world' should be 0",
-			Details{
-				"output": output,
-			},
-		)
+	}) {
+		return
 	}
+
+	output := account.V2AccountResponse.Data.Volumes["USD/2"].Output
+	if !assertAlways(output != nil, "Expect output of world for USD/2 to be not empty", Details{}) {
+		return
+	}
+	fmt.Printf("Expect output of world to be %s and got %d\r\n", totalAmount, output)
+	assert.Always(
+		output.Cmp(totalAmount) == 0,
+		"output of 'world' should match",
+		Details{
+			"output": output,
+		},
+	)
 }
 
 func runTrade(ctx context.Context, client *sdk.Formance, amount *big.Int) func() error {
@@ -124,8 +145,10 @@ func runTrade(ctx context.Context, client *sdk.Formance, amount *big.Int) func()
 			},
 			Ledger: "default",
 		})
-		assert.Always(err == nil, "creating transaction from @world to @bank should always return a nil error", Details{})
+		assert.Always(err == nil, "creating transaction from @world to @bank should always return a nil error", Details{
+			"error": fmt.Sprintf("%+v\n", err),
+		})
 
-		return nil
+		return err
 	}
 }
