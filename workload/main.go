@@ -3,15 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/alitto/pond"
 	"github.com/antithesishq/antithesis-sdk-go/assert"
 	"github.com/antithesishq/antithesis-sdk-go/lifecycle"
 	"github.com/antithesishq/antithesis-sdk-go/random"
 	sdk "github.com/formancehq/formance-sdk-go/v2"
 	"github.com/formancehq/formance-sdk-go/v2/pkg/models/operations"
 	"github.com/formancehq/formance-sdk-go/v2/pkg/models/shared"
-	"github.com/formancehq/stack/libs/go-libs/httpclient"
 	"github.com/formancehq/stack/libs/go-libs/pointer"
-	"golang.org/x/sync/errgroup"
+	"go.uber.org/atomic"
 	"math"
 	"math/big"
 	"net/http"
@@ -26,8 +26,8 @@ func main() {
 	client := sdk.New(
 		sdk.WithServerURL("http://gateway:8080"),
 		sdk.WithClient(&http.Client{
-			Timeout:   5 * time.Second,
-			Transport: httpclient.NewDebugHTTPTransport(http.DefaultTransport),
+			Timeout: 10 * time.Second,
+			//Transport: httpclient.NewDebugHTTPTransport(http.DefaultTransport),
 		}),
 	)
 
@@ -86,18 +86,26 @@ func runWorkload(ctx context.Context, client *sdk.Formance) {
 		return
 	}
 
+	pool := pond.New(20, 10000)
+
 	totalAmount := big.NewInt(0)
 
+	hasError := atomic.NewBool(false)
+
 	fmt.Printf("Insert %d transactions...\r\n", count)
-	grp, _ := errgroup.WithContext(ctx)
 	for i := 0; i < count; i++ {
 		amount := randomBigInt()
 		totalAmount = totalAmount.Add(totalAmount, amount)
-		grp.Go(runTrade(ctx, client, amount))
+		pool.Submit(func() {
+			if err := runTrade(ctx, client, amount); err != nil {
+				hasError.CompareAndSwap(false, true)
+			}
+		})
 	}
 
-	err = grp.Wait()
-	if !assertAlways(err == nil, "all transactions should have been written", Details{
+	pool.StopAndWait()
+
+	if !assertAlways(!hasError.Load(), "all transactions should have been written", Details{
 		"error": fmt.Sprintf("%+v\n", err),
 	}) {
 		return
@@ -129,25 +137,23 @@ func runWorkload(ctx context.Context, client *sdk.Formance) {
 	)
 }
 
-func runTrade(ctx context.Context, client *sdk.Formance, amount *big.Int) func() error {
-	return func() error {
-		orderID := fmt.Sprint(int64(math.Abs(float64(random.GetRandom()))))
+func runTrade(ctx context.Context, client *sdk.Formance, amount *big.Int) error {
+	orderID := fmt.Sprint(int64(math.Abs(float64(random.GetRandom()))))
 
-		_, err := client.Ledger.V2CreateTransaction(ctx, operations.V2CreateTransactionRequest{
-			V2PostTransaction: shared.V2PostTransaction{
-				Postings: []shared.V2Posting{{
-					Amount:      amount,
-					Asset:       "USD/2",
-					Destination: fmt.Sprintf("orders:%s", orderID),
-					Source:      "world",
-				}},
-			},
-			Ledger: "default",
-		})
-		assert.Always(err == nil, "creating transaction from @world to @bank should always return a nil error", Details{
-			"error": fmt.Sprintf("%+v\n", err),
-		})
+	_, err := client.Ledger.V2CreateTransaction(ctx, operations.V2CreateTransactionRequest{
+		V2PostTransaction: shared.V2PostTransaction{
+			Postings: []shared.V2Posting{{
+				Amount:      amount,
+				Asset:       "USD/2",
+				Destination: fmt.Sprintf("orders:%s", orderID),
+				Source:      "world",
+			}},
+		},
+		Ledger: "default",
+	})
+	assert.Always(err == nil, "creating transaction from @world to @bank should always return a nil error", Details{
+		"error": fmt.Sprintf("%+v\n", err),
+	})
 
-		return err
-	}
+	return err
 }

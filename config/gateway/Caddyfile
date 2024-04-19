@@ -1,6 +1,5 @@
 {
 	# Local env dev config
-	debug
 	auto_https off
 }
 

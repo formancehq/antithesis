@@ -7,6 +7,7 @@ toolchain go1.22.0
 require github.com/antithesishq/antithesis-sdk-go v0.3.4
 
 require (
+	github.com/alitto/pond v1.8.3 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/ericlagergren/decimal v0.0.0-20240411145413-00de7ca16731 // indirect
 	github.com/formancehq/formance-sdk-go v1.0.202307124 // indirect
