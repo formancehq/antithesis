@@ -59,6 +59,11 @@ services:
         ipv4_address: 10.0.0.18
     depends_on:
       - ledger
+    healthcheck:
+      test: curl --fail http://localhost:8080 || exit 1
+      interval: 2s
+      retries: 5
+      start_period: 1s
 
   workload:
     image: "us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/workload"
