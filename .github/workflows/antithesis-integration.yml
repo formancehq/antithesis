@@ -34,7 +34,7 @@ jobs:
     - name: Run Antithesis Tests
       uses: antithesishq/antithesis-trigger-action@main
       with:
-        notebook_name: formance__configuration-internal__latest
+        notebook_name: formance__configuration__latest
         tenant: formance
         username: ${{ secrets.ANTITHESIS_USERNAME }}
         password: ${{ secrets.ANTITHESIS_PASSWORD }}
