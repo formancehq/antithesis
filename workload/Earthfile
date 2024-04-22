@@ -8,7 +8,7 @@ compile:
     RUN go mod download
     RUN go get github.com/formancehq/antithesis-poc
     RUN mkdir -p /workload_instrumented
-    RUN /go/bin/antithesis-go-instrumentor . /workload_instrumented
+    RUN /go/bin/antithesis-go-instrumentor -assert_only . /workload_instrumented
     WORKDIR /workload_instrumented/customer
     RUN go mod download
     RUN go build -o main
