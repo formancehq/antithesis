@@ -1,9 +1,9 @@
-VERSION 0.8
+VERSION 0.7
 
 compile:
     FROM --platform=linux/amd64 golang:1.22.2
     WORKDIR /src
-    RUN go install github.com/antithesishq/antithesis-sdk-go/tools/antithesis-go-instrumentor@latest
+    RUN go install github.com/antithesishq/antithesis-sdk-go/tools/antithesis-go-instrumentor@461718c
     COPY go.* *.go .
     RUN go mod download
     RUN go get github.com/formancehq/antithesis-poc

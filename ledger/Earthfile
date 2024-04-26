@@ -2,20 +2,18 @@ VERSION 0.8
 
 compile:
     FROM --platform=linux/amd64 golang:1.22.2
-    # TODO: can also build straight from application code
-    RUN git clone --depth=1 https://github.com/formancehq/stack.git
+    RUN git clone --branch main https://github.com/formancehq/stack.git /go/stack
     RUN go install github.com/antithesishq/antithesis-sdk-go/tools/antithesis-go-instrumentor@latest
     WORKDIR /go/stack/components/ledger
+    RUN cp -r /go/stack/libs /libs
     RUN go mod download
-    RUN go get github.com/antithesishq/antithesis-sdk-go
-    RUN go get github.com/formancehq/antithesis-poc
-    RUN mkdir -p /workload_instrumented
-    RUN /go/bin/antithesis-go-instrumentor . /workload_instrumented
-    WORKDIR /workload_instrumented/customer
+    RUN mkdir -p /ledger_instrumented
+    RUN /go/bin/antithesis-go-instrumentor . /ledger_instrumented
+    WORKDIR /ledger_instrumented/customer
     RUN go mod download
     RUN go build -race -o ledger
-    SAVE ARTIFACT /workload_instrumented/customer/ledger
-    SAVE ARTIFACT /workload_instrumented/symbols
+    SAVE ARTIFACT /ledger_instrumented/customer/ledger
+    SAVE ARTIFACT /ledger_instrumented/symbols
 
 build:
     FROM ubuntu:latest
