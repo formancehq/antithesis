@@ -1,7 +1,7 @@
 name: Antithesis Integration
 
-on:
-  push:
+#on:
+#  push:
 
 env: 
   REGISTRY: us-central1-docker.pkg.dev
