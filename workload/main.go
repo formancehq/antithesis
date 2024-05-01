@@ -33,9 +33,6 @@ func main() {
 
 	waitServicesReady(ctx, client)
 
-	// signals that the system is up and running
-	lifecycle.SetupComplete(Details{"Ledger": "Available"})
-
 	runWorkload(ctx, client)
 }
 
@@ -69,7 +66,7 @@ func randomBigInt() *big.Int {
 }
 
 func runWorkload(ctx context.Context, client *sdk.Formance) {
-	const count = 100
+	const count = 1000
 
 	fmt.Println("Creating ledger...")
 	_, err := client.Ledger.V2CreateLedger(ctx, operations.V2CreateLedgerRequest{
@@ -80,6 +77,9 @@ func runWorkload(ctx context.Context, client *sdk.Formance) {
 	}) {
 		return
 	}
+
+	// signals that the system is up and running
+	lifecycle.SetupComplete(Details{"Ledger": "Available"})
 
 	pool := pond.New(20, 10000)
 
