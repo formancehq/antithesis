@@ -72,9 +72,11 @@ func runWorkload(ctx context.Context, client *sdk.Formance) {
 	_, err := client.Ledger.V2CreateLedger(ctx, operations.V2CreateLedgerRequest{
 		Ledger: "default",
 	})
-	if !assert.Always(err == nil, "ledger should have been created", Details{
+
+	cond := err == nil
+	if assert.Always(cond, "ledger should have been created", Details{
 		"error": fmt.Sprintf("%+v\n", err),
-	}) {
+	}); !cond {
 		return
 	}
 
@@ -100,9 +102,10 @@ func runWorkload(ctx context.Context, client *sdk.Formance) {
 
 	pool.StopAndWait()
 
-	if !assert.Always(!hasError.Load(), "all transactions should have been written", Details{
+	cond = !hasError.Load()
+	if assert.Always(cond, "all transactions should have been written", Details{
 		"error": fmt.Sprintf("%+v\n", err),
-	}) {
+	}); !cond {
 		return
 	}
 
@@ -112,14 +115,18 @@ func runWorkload(ctx context.Context, client *sdk.Formance) {
 		Expand:  pointer.For("volumes"),
 		Ledger:  "default",
 	})
-	if !assert.Always(err == nil, "we should be able to query account 'world'", Details{
+
+	cond = err == nil
+	if assert.Always(cond, "we should be able to query account 'world'", Details{
 		"error": fmt.Sprintf("%+v\n", err),
-	}) {
+	}); !cond {
 		return
 	}
 
 	output := account.V2AccountResponse.Data.Volumes["USD/2"].Output
-	if !assert.Always(output != nil, "Expect output of world for USD/2 to be not empty", Details{}) {
+
+	cond = output != nil
+	if assert.Always(cond, "Expect output of world for USD/2 to be not empty", Details{}); !cond {
 		return
 	}
 	fmt.Printf("Expect output of world to be %s and got %d\r\n", totalAmount, output)

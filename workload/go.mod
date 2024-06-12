@@ -4,7 +4,7 @@ go 1.21
 
 toolchain go1.22.0
 
-require github.com/antithesishq/antithesis-sdk-go 461718c
+require github.com/antithesishq/antithesis-sdk-go v0.3.8
 
 require (
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect

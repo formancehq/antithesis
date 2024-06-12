@@ -3,7 +3,7 @@ VERSION 0.7
 compile:
     FROM --platform=linux/amd64 golang:1.22.2
     WORKDIR /src
-    RUN go install github.com/antithesishq/antithesis-sdk-go/tools/antithesis-go-instrumentor@461718c
+    RUN go install github.com/antithesishq/antithesis-sdk-go/tools/antithesis-go-instrumentor@latest
     COPY go.* *.go .
     RUN go mod download
     RUN go get github.com/formancehq/antithesis-poc
@@ -19,4 +19,4 @@ build:
     RUN chmod 777 /bin/workload
     ENTRYPOINT ["/bin/workload"]
 
-    SAVE IMAGE --push us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/workload
+    SAVE IMAGE --push us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/workload:latest
