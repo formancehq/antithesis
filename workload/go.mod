@@ -15,6 +15,4 @@ require (
 require (
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/ericlagergren/decimal v0.0.0-20240411145413-00de7ca16731 // indirect
-	github.com/formancehq/formance-sdk-go v1.0.202307124 // indirect
-	golang.org/x/sync v0.7.0 // indirect
 )
