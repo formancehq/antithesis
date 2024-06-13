@@ -3,6 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
+	"math"
+	"math/big"
+	"net/http"
+	"os"
+	"time"
+
 	"github.com/alitto/pond"
 	"github.com/antithesishq/antithesis-sdk-go/assert"
 	"github.com/antithesishq/antithesis-sdk-go/lifecycle"
@@ -12,11 +18,6 @@ import (
 	"github.com/formancehq/formance-sdk-go/v2/pkg/models/shared"
 	"github.com/formancehq/stack/libs/go-libs/pointer"
 	"go.uber.org/atomic"
-	"math"
-	"math/big"
-	"net/http"
-	"os"
-	"time"
 )
 
 type Details map[string]any
