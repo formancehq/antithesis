@@ -34,9 +34,6 @@ func main() {
 
 	waitServicesReady(ctx, client)
 
-	// signals that the system is up and running
-	lifecycle.SetupComplete(Details{"Ledger": "Available"})
-
 	runWorkload(ctx, client)
 }
 
@@ -69,23 +66,23 @@ func randomBigInt() *big.Int {
 	return ret
 }
 
-func assertAlways(v bool, msg string, details Details) bool {
-	assert.Always(v, msg, details)
-	return v
-}
-
 func runWorkload(ctx context.Context, client *sdk.Formance) {
-	const count = 100
+	const count = 1000
 
 	fmt.Println("Creating ledger...")
 	_, err := client.Ledger.V2CreateLedger(ctx, operations.V2CreateLedgerRequest{
 		Ledger: "default",
 	})
-	if !assertAlways(err == nil, "ledger should have been created", Details{
+
+	cond := err == nil
+	if assert.Always(cond, "ledger should have been created", Details{
 		"error": fmt.Sprintf("%+v\n", err),
-	}) {
+	}); !cond {
 		return
 	}
+
+	// signals that the system is up and running
+	lifecycle.SetupComplete(Details{"Ledger": "Available"})
 
 	pool := pond.New(20, 10000)
 
@@ -106,9 +103,10 @@ func runWorkload(ctx context.Context, client *sdk.Formance) {
 
 	pool.StopAndWait()
 
-	if !assertAlways(!hasError.Load(), "all transactions should have been written", Details{
+	cond = !hasError.Load()
+	if assert.Always(cond, "all transactions should have been written", Details{
 		"error": fmt.Sprintf("%+v\n", err),
-	}) {
+	}); !cond {
 		return
 	}
 
@@ -118,14 +116,18 @@ func runWorkload(ctx context.Context, client *sdk.Formance) {
 		Expand:  pointer.For("volumes"),
 		Ledger:  "default",
 	})
-	if !assertAlways(err == nil, "we should be able to query account 'world'", Details{
+
+	cond = err == nil
+	if assert.Always(cond, "we should be able to query account 'world'", Details{
 		"error": fmt.Sprintf("%+v\n", err),
-	}) {
+	}); !cond {
 		return
 	}
 
 	output := account.V2AccountResponse.Data.Volumes["USD/2"].Output
-	if !assertAlways(output != nil, "Expect output of world for USD/2 to be not empty", Details{}) {
+
+	cond = output != nil
+	if assert.Always(cond, "Expect output of world for USD/2 to be not empty", Details{}); !cond {
 		return
 	}
 	fmt.Printf("Expect output of world to be %s and got %d\r\n", totalAmount, output)

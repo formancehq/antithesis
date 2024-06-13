@@ -65,7 +65,7 @@ services:
       start_period: 1s
 
   workload:
-    image: "us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/workload"
+    image: "us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/workload:latest"
     hostname: workload
     container_name: workload
     networks:

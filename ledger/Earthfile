@@ -24,4 +24,4 @@ build:
     ENTRYPOINT ["ledger"]
     CMD ["serve"]
 
-    SAVE IMAGE --push us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/ledger
+    SAVE IMAGE --push us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/ledger:latest
