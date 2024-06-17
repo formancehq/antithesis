@@ -16,7 +16,7 @@ compile:
     SAVE ARTIFACT /ledger_instrumented/symbols
 
 build:
-    FROM ubuntu:latest
+    FROM --platform=linux/amd64 ubuntu:latest
     COPY (+compile/ledger) /bin/ledger
     COPY (+compile/symbols) /symbols
     RUN chmod 777 /bin/ledger
@@ -24,4 +24,5 @@ build:
     ENTRYPOINT ["ledger"]
     CMD ["serve"]
 
-    SAVE IMAGE --push us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/ledger:latest
+    SAVE IMAGE --push --no-manifest-list \
+        us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/ledger

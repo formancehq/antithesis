@@ -14,9 +14,10 @@ compile:
     SAVE ARTIFACT main
 
 build:
-    FROM ubuntu:latest
+    FROM --platform=linux/amd64 ubuntu:latest
     COPY (+compile/main) /bin/workload
     RUN chmod 777 /bin/workload
     ENTRYPOINT ["/bin/workload"]
 
-    SAVE IMAGE --push us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/workload:latest
+    SAVE IMAGE --push --no-manifest-list \
+        us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/workload

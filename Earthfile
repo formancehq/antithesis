@@ -5,10 +5,11 @@ build-configuration-image:
     COPY config/docker-compose.yml /docker-compose.yml
     COPY config/gateway/Caddyfile /gateway/Caddyfile
 
-    SAVE IMAGE --push us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/antithesis-config:latest
+    SAVE IMAGE --push --no-manifest-list \
+    us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/antithesis-config
 
 build-all:
-    BUILD --platform=linux/amd64 +build-configuration-image
+    BUILD +build-configuration-image
     BUILD --platform=linux/amd64 ./workload+build
     BUILD --platform=linux/amd64 ./ledger+build
 
