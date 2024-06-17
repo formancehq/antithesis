@@ -2,7 +2,7 @@ VERSION 0.8
 
 compile:
     FROM --platform=linux/amd64 golang:1.22.2
-    RUN git clone --branch feat/antithesis-sdk https://github.com/formancehq/stack.git /go/stack
+    RUN git clone --branch feat/antithesis-sdk --depth 1 https://github.com/formancehq/stack.git /go/stack
     RUN go install github.com/antithesishq/antithesis-sdk-go/tools/antithesis-go-instrumentor@latest
     WORKDIR /go/stack/components/ledger
     RUN cp -r /go/stack/libs /libs

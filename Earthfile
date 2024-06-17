@@ -8,9 +8,9 @@ build-configuration-image:
     SAVE IMAGE --push us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/antithesis-config:latest
 
 build-all:
-    BUILD +build-configuration-image
-    BUILD ./workload+build
-    BUILD ./ledger+build
+    BUILD --platform=linux/amd64 +build-configuration-image
+    BUILD --platform=linux/amd64 ./workload+build
+    BUILD --platform=linux/amd64 ./ledger+build
 
 run:
     LOCALLY
@@ -24,3 +24,8 @@ run-remote:
     FROM curlimages/curl
     ARG USERNAME=formance
     RUN --no-cache --secret ANTITHESIS_PASSWORD curl --fail --user "$USERNAME:$ANTITHESIS_PASSWORD" -X POST https://formance.antithesis.com/api/v1/launch_experiment/formance__short__latest
+
+run-remote-fast:
+    FROM curlimages/curl
+    ARG USERNAME=formance
+    RUN --no-cache --secret ANTITHESIS_PASSWORD curl --fail --user "$USERNAME:$ANTITHESIS_PASSWORD" -X POST https://formance.antithesis.com/api/v1/launch_experiment/formance -d '{"params": {"custom.duration":"0.1", "antithesis.report.recipients":"formance-antithesis-aaaamsevowqgd236sncthxc4tu@antithesisgroup.slack.com"}}'
