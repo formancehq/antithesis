@@ -20,4 +20,4 @@ build:
     ENTRYPOINT ["/bin/workload"]
 
     SAVE IMAGE --push --no-manifest-list \
-        us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/workload
+        us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/workload:latest

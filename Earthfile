@@ -6,7 +6,7 @@ build-configuration-image:
     COPY config/gateway/Caddyfile /gateway/Caddyfile
 
     SAVE IMAGE --push --no-manifest-list \
-    us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/antithesis-config
+    us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/antithesis-config:latest
 
 build-all:
     BUILD +build-configuration-image
