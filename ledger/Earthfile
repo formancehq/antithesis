@@ -2,7 +2,7 @@ VERSION 0.8
 
 compile:
     FROM --platform=linux/amd64 golang:1.22.2
-    RUN git clone --branch main https://github.com/formancehq/stack.git /go/stack
+    RUN git clone --branch feat/antithesis-sdk --depth 1 https://github.com/formancehq/stack.git /go/stack
     RUN go install github.com/antithesishq/antithesis-sdk-go/tools/antithesis-go-instrumentor@latest
     WORKDIR /go/stack/components/ledger
     RUN cp -r /go/stack/libs /libs
@@ -20,8 +20,10 @@ build:
     COPY (+compile/ledger) /bin/ledger
     COPY (+compile/symbols) /symbols
     RUN chmod 777 /bin/ledger
+    RUN apt-get update -y && apt-get install -y postgresql-client
+    COPY entrypoint.sh /bin/entrypoint.sh
+    RUN chmod 777 /bin/entrypoint.sh
     EXPOSE 8080
-    ENTRYPOINT ["ledger"]
-    CMD ["serve"]
+    ENTRYPOINT ["/bin/entrypoint.sh"]
 
     SAVE IMAGE --push us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/ledger:latest
