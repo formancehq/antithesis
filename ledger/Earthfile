@@ -20,9 +20,11 @@ build:
     COPY (+compile/ledger) /bin/ledger
     COPY (+compile/symbols) /symbols
     RUN chmod 777 /bin/ledger
+    RUN apt-get update -y && apt-get install -y postgresql-client
+    COPY entrypoint.sh /bin/entrypoint.sh
+    RUN chmod 777 /bin/entrypoint.sh
     EXPOSE 8080
-    ENTRYPOINT ["ledger"]
-    CMD ["serve"]
+    ENTRYPOINT ["/bin/entrypoint.sh"]
 
     SAVE IMAGE --push --no-manifest-list \
         us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/ledger:latest
