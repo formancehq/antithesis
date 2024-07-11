@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"math/big"
+	"os"
 
 	"github.com/alitto/pond"
 	"github.com/antithesishq/antithesis-sdk-go/assert"
@@ -49,21 +50,22 @@ func runWorkload(ctx context.Context, client *sdk.Formance) {
 			}
 
 			idSeq.Register(id)
-
-			err = idSeq.Check()
-			assert.Always(err == nil, "IDSeq check should pass", Details{
-				"count": idSeq.Count,
-				"sum":   idSeq.Sum,
-			})
-
-			if err != nil {
-				hasError.CompareAndSwap(false, true)
-				return
-			}
 		})
 	}
 
 	pool.StopAndWait()
+
+	err = idSeq.Check()
+	assert.Always(err == nil, "IDSeq check should pass", Details{
+		"count": idSeq.Count,
+		"sum":   idSeq.Sum,
+	})
+
+	if err != nil {
+		hasError.CompareAndSwap(false, true)
+		os.Exit(1)
+		return
+	}
 
 	cond = !hasError.Load()
 	if assert.Always(cond, "all transactions should have been written", Details{
