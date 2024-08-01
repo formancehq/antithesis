@@ -1,0 +1,10 @@
+{
+	# Local env dev config
+	auto_https off
+}
+
+:8080 {
+	handle_path /api/ledger/* {
+        reverse_proxy ledger_replica_1:8080 ledger_replica_2:8080
+    }
+}
