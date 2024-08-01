@@ -25,6 +25,7 @@ build:
     RUN chmod 777 /bin/ledger
     RUN apt-get update -y && apt-get install -y postgresql-client
     COPY entrypoint.sh /bin/entrypoint.sh
+    COPY export.sh /bin/export.sh
     RUN chmod 777 /bin/entrypoint.sh
     EXPOSE 8080
     ENTRYPOINT ["/bin/entrypoint.sh"]
