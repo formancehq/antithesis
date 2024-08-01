@@ -23,7 +23,7 @@ build:
     COPY (+compile/symbols) /symbols
     COPY (+compile/version.json) /version.json
     RUN chmod 777 /bin/ledger
-    RUN apt-get update -y && apt-get install -y postgresql-client
+    RUN apt-get update -y && apt-get install -y postgresql-client curl
     COPY entrypoint.sh /bin/entrypoint.sh
     COPY export.sh /bin/export.sh
     RUN chmod 777 /bin/entrypoint.sh
