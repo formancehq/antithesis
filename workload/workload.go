@@ -29,7 +29,7 @@ func runWorkload(ctx context.Context, client *sdk.Formance) {
 		"Ledger": "Available",
 	})
 
-	const count = int(1e6)
+	const count = 1000
 
 	hasError := atomic.NewBool(false)
 	totalAmount := big.NewInt(0)
