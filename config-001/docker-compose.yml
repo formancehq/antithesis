@@ -15,6 +15,9 @@ services:
     container_name: jaeger
     environment:
       COLLECTOR_OTLP_HTTP_HOST_PORT: 0.0.0.0:4318
+      BADGER_EPHEMERAL: false
+      BADGER_DIRECTORY_VALUE: /badger/data
+      BADGER_DIRECTORY_KEY: /badger/key
     ports:
       - "16686:16686"
       - "4318:4318"
