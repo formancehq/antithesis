@@ -26,7 +26,7 @@ start-debugging:
     ARG EMAIL
     FROM alpine/httpie
     RUN --no-cache --secret ANTITHESIS_PASSWORD http --ignore-stdin -a "formance:$ANTITHESIS_PASSWORD" post https://formance.antithesis.com/api/v1/launch_experiment/launch_debugging \
-    "params.antithesis.debugging.session_id"=$SESSION_ID \
-    "params.antithesis.debugging.input_hash"=$INPUT_HASH \
-    "params.antithesis.debugging.vtime"=$VTIME \
-    "params.antithesis.report.recipients"=$EMAIL
+    params["antithesis.debugging.session_id"]=$SESSION_ID \
+    params["antithesis.debugging.input_hash"]=$INPUT_HASH \
+    params["antithesis.debugging.vtime"]=$VTIME \
+    params["antithesis.report.recipients"]=$EMAIL
