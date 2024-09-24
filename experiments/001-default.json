@@ -1,0 +1,8 @@
+{
+  "params": {
+    "custom.duration": "0.1",
+    "antithesis.report.recipients": "formance-antithesis-aaaamsevowqgd236sncthxc4tu@antithesisgroup.slack.com",
+    "antithesis.config_image": "antithesis-config-001:latest",
+    "antithesis.images": "ledger:latest"
+  }
+}
