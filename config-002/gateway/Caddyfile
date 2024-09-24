@@ -5,9 +5,7 @@
 
 :8080 {
     handle_path /api/ledger/* {
-        @get method GET
         reverse_proxy @get ledger_replica_1:8080
-
         reverse_proxy ledger_replica_2:8080
     }
 }
