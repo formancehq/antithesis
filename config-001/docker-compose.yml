@@ -12,9 +12,11 @@ services:
   jaeger:
     image: "jaegertracing/all-in-one:latest"
     hostname: jaeger
+    user: root
     container_name: jaeger
     environment:
       COLLECTOR_OTLP_HTTP_HOST_PORT: 0.0.0.0:4318
+      SPAN_STORAGE_TYPE: badger
       BADGER_EPHEMERAL: false
       BADGER_DIRECTORY_VALUE: /badger/data
       BADGER_DIRECTORY_KEY: /badger/key
