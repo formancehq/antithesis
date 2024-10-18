@@ -3,6 +3,6 @@
     "custom.duration": "0.1",
     "antithesis.report.recipients": "formance-antithesis-aaaamsevowqgd236sncthxc4tu@antithesisgroup.slack.com",
     "antithesis.config_image": "antithesis-config-001:latest",
-    "antithesis.images": "ledger:_antithesis_stateless_latest"
+    "antithesis.images": "ledger:ledger_stateless_latest"
   }
 }

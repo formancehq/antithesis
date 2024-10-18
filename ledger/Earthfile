@@ -1,14 +1,14 @@
 VERSION 0.8
 
 compile:
-    ARG STACK_BRANCH="main"
+    ARG BRANCH="main"
     FROM --platform=linux/amd64 golang:1.22.2
-    RUN curl -s https://api.github.com/repos/formancehq/stack/git/refs/heads/${STACK_BRANCH} > /version.json
-    GIT CLONE --branch ${STACK_BRANCH} https://github.com/formancehq/stack.git /go/stack
+    RUN curl -s https://api.github.com/repos/formancehq/ledger/git/refs/heads/${BRANCH} > /version.json
+    GIT CLONE --branch ${BRANCH} https://github.com/formancehq/ledger.git /go/ledger
     RUN go install github.com/antithesishq/antithesis-sdk-go/tools/antithesis-go-instrumentor@latest
-    WORKDIR /go/stack/components/ledger
-    RUN cp -r /go/stack/libs /libs
-    RUN cp -r /go/stack/releases /releases
+    WORKDIR /go/ledger
+    # RUN cp -r /go/stack/libs /libs
+    # RUN cp -r /go/stack/releases /releases
     RUN go mod download
     RUN mkdir -p /ledger_instrumented
     RUN /go/bin/antithesis-go-instrumentor . /ledger_instrumented
@@ -20,7 +20,7 @@ compile:
     SAVE ARTIFACT /version.json
 
 build:
-    ARG STACK_BRANCH="main"
+    ARG IMAGE_TAG="main"
     FROM --platform=linux/amd64 ubuntu:latest
     COPY (+compile/ledger) /bin/ledger
     COPY (+compile/symbols) /symbols
@@ -33,4 +33,4 @@ build:
     EXPOSE 8080
     ENTRYPOINT ["/bin/entrypoint.sh"]
     SAVE IMAGE --push --no-manifest-list \
-        "us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/ledger:${STACK_BRANCH}_latest"
+        "us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/ledger:${IMAGE_TAG}_latest"
