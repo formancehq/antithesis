@@ -1,0 +1,47 @@
+---
+version: '3.8'
+
+networks:
+  formance:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.0.0/24
+
+services:
+
+  postgres:
+    image: "postgres:15-alpine"
+    hostname: postgres
+    container_name: postgres
+    command:
+      - -c
+      - max_connections=200
+    environment:
+      POSTGRES_USER: "ledger"
+      POSTGRES_PASSWORD: "ledger"
+      POSTGRES_DB: "ledger"
+      PGDATA: /data/postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ledger" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      formance:
+        ipv4_address: 10.0.0.16
+
+  ledger:
+    image: "us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/ledger_test:ledger_stateless_latest"
+    hostname: ledger
+    container_name: ledger
+    entrypoint: test.sh
+    environment:
+      STORAGE_DRIVER: "postgres"
+      POSTGRES_URI: "postgresql://ledger:ledger@10.0.0.16:5432/ledger?sslmode=disable"
+    networks:
+      formance:
+        ipv4_address: 10.0.0.17
+    depends_on:
+      postgres:
+        condition: service_healthy

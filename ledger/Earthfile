@@ -2,6 +2,7 @@ VERSION 0.8
 
 compile:
     ARG BRANCH="main"
+    ARG IMAGE_TAG="main"
     FROM --platform=linux/amd64 golang:1.22.2
     RUN curl -s https://api.github.com/repos/formancehq/ledger/git/refs/heads/${BRANCH} > /version.json
     GIT CLONE --branch ${BRANCH} https://github.com/formancehq/ledger.git /go/ledger
@@ -18,6 +19,11 @@ compile:
     SAVE ARTIFACT /ledger_instrumented/customer/ledger
     SAVE ARTIFACT /ledger_instrumented/symbols
     SAVE ARTIFACT /version.json
+    RUN apt-get update -y && apt-get install -y postgresql-client curl
+    COPY test.sh /bin/test.sh
+    ENTRYPOINT ["/bin/test.sh"]
+    SAVE IMAGE --push --no-manifest-list \
+        "us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/ledger_test:${IMAGE_TAG}_latest"
 
 build:
     ARG IMAGE_TAG="main"
@@ -28,8 +34,8 @@ build:
     RUN chmod 777 /bin/ledger
     RUN apt-get update -y && apt-get install -y postgresql-client curl
     COPY entrypoint.sh /bin/entrypoint.sh
-    COPY export.sh /bin/export.sh
     RUN chmod 777 /bin/entrypoint.sh
+    COPY export.sh /bin/export.sh
     EXPOSE 8080
     ENTRYPOINT ["/bin/entrypoint.sh"]
     SAVE IMAGE --push --no-manifest-list \

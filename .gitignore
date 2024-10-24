@@ -1,2 +1,4 @@
 workload_rust/*
 todo.md
+local-debug/badger/*
+!local-debug/badger/.gitkeep

@@ -1,0 +1,7 @@
+VERSION 0.8
+
+build:
+  FROM --platform=linux/amd64 scratch
+  COPY docker-compose.yml /docker-compose.yml
+  SAVE IMAGE --push --no-manifest-list \
+  us-central1-docker.pkg.dev/molten-verve-216720/formance-repository/antithesis-config-000:latest

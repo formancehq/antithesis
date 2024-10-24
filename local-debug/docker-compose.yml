@@ -1,0 +1,19 @@
+---
+version: '3.8'
+
+services:
+  jaeger:
+    image: "jaegertracing/all-in-one:latest"
+    hostname: jaeger
+    user: root
+    container_name: jaeger
+    environment:
+      SPAN_STORAGE_TYPE: badger
+      BADGER_EPHEMERAL: false
+      BADGER_DIRECTORY_VALUE: /badger/data
+      BADGER_DIRECTORY_KEY: /badger/key
+      BADGER_READ_ONLY: true
+    volumes:
+      - ./badger:/badger
+    ports:
+      - "16686:16686"
